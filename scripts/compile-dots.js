@@ -34,19 +34,31 @@ var VARS = [
   '$errorKeyword', '$closingBraces', '$schemaPath',
   '$validate'
 ];
+var PRELUDE = "'use strict';\n" +
+'/* eslint-disable */\n';
+var JSDOC =
+'/**\n' +
+' * @param {import(\'../internals\').CompilationContext} it\n' +
+' * @param {string} $keyword\n' +
+' * @param {string=} $ruleType\n' +
+' */\n';
+var JSDOC_TOP = '/** @param {import(\'../internals\').CompilationContextEntry} it */\n';
 
 files.forEach(function (f) {
   var keyword = path.basename(f, '.jst');
   var targetPath = path.join(dotjsPath, keyword + '.js');
   var template = fs.readFileSync(path.join(filesRootPath, f));
   var code = doT.compile(template, defs);
+  var isTop = keyword === 'validate';
   code = code.toString()
              .replace(OUT_EMPTY_STRING, '')
-             .replace(FUNCTION_NAME, 'function generate_' + keyword + '(it, $keyword, $ruleType) {')
+             .replace(FUNCTION_NAME, 'function generate_' + keyword + '(it' + (
+                 isTop ? '' : ', $keyword, $ruleType'
+               ) + ') {')
              .replace(ISTANBUL, '/* $1 */');
   removeAlwaysFalsyInOr();
   VARS.forEach(removeUnusedVar);
-  code = "'use strict';\nmodule.exports = " + code;
+  code = PRELUDE + (isTop ? JSDOC_TOP : JSDOC) + 'module.exports = ' + code;
   code = beautify(code, { indent_size: 2 }) + '\n';
   fs.writeFileSync(targetPath, code);
   console.log('compiled', keyword);

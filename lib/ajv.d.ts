@@ -166,6 +166,7 @@ declare namespace ajv {
     $data?: boolean;
     allErrors?: boolean;
     verbose?: boolean;
+    $comment?: boolean | ((value: string, path: string, rootSchema: object) => void);
     jsonPointers?: boolean;
     uniqueItems?: boolean;
     unicode?: boolean;
@@ -262,8 +263,8 @@ declare namespace ajv {
       copy(obj: any, target?: any): any;
       toHash(source: string[]): { [index: string]: true | undefined };
       equal(obj: any, target: any): boolean;
-      getProperty(str: string): string;
-      schemaHasRules(schema: object, rules: any): string;
+      getProperty(str: string | number): string;
+      schemaHasRules(schema: object, rules: any): boolean;
       escapeQuotes(str: string): string;
       toQuotedString(str: string): string;
       getData(jsonPointer: string, dataLevel: number, paths: string[]): string;
